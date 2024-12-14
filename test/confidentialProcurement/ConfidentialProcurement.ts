@@ -31,21 +31,31 @@ describe("ConfidentialProcurement", function () {
     // Submit first bid
     const tx1 = await this.procurement
       .connect(this.signers.bob)
-      .submitBid(encryptedPrice1.handles[0], encryptedCompliance1.handles[0], encryptedPrice1.inputProof);
+      .submitBid(
+        encryptedPrice1.handles[0],
+        encryptedCompliance1.handles[0],
+        encryptedPrice1.inputProof,
+        encryptedCompliance1.inputProof,
+      );
     await tx1.wait();
 
     // Submit second bid with lower price but no compliance
-    const bidder2Input = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.charlie.address);
+    const bidder2Input = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.carol.address);
     bidder2Input.add64(800);
     const encryptedPrice2 = await bidder2Input.encrypt();
 
-    const compliance2Input = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.charlie.address);
-    compliance2Input.add1(false);
+    const compliance2Input = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.carol.address);
+    compliance2Input.addBool(false);
     const encryptedCompliance2 = await compliance2Input.encrypt();
 
     const tx2 = await this.procurement
-      .connect(this.signers.charlie)
-      .submitBid(encryptedPrice2.handles[0], encryptedCompliance2.handles[0], encryptedPrice2.inputProof);
+      .connect(this.signers.carol)
+      .submitBid(
+        encryptedPrice2.handles[0],
+        encryptedCompliance2.handles[0],
+        encryptedPrice2.inputProof,
+        encryptedCompliance2.inputProof,
+      );
     await tx2.wait();
 
     // Evaluate bids

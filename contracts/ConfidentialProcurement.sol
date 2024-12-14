@@ -8,11 +8,9 @@ import "fhevm/gateway/GatewayCaller.sol";
 /// @title ConfidentialProcurement
 /// @notice Contrato para manejar licitaciones confidenciales utilizando FHE y Gateway.
 contract ConfidentialProcurement is SepoliaZamaFHEVMConfig, GatewayCaller {
-
-
     struct Bid {
-        euint64 price;       // Precio cifrado
-        ebool compliance;    // Cumplimiento (si/no) cifrado
+        euint64 price; // Precio cifrado
+        ebool compliance; // Cumplimiento (si/no) cifrado
     }
 
     struct Result {
@@ -20,23 +18,25 @@ contract ConfidentialProcurement is SepoliaZamaFHEVMConfig, GatewayCaller {
         euint64 lowestPrice;
     }
 
-    mapping(address => Bid) public bids;     // Licitaciones de los participantes
-    address[] public bidders;               // Lista de licitantes para iteracion
-    Result public results;                  // Resultado final
+    mapping(address => Bid) public bids; // Licitaciones de los participantes
+    address[] public bidders; // Lista de licitantes para iteracion
+    Result public results; // Resultado final
 
-    uint256 public latestRequestID;         // Ultima solicitud de desencriptacion
+    uint256 public latestRequestID; // Ultima solicitud de desencriptacion
 
     /// @notice Permite que los licitantes envien sus ofertas
     /// @param encryptedPrice Precio cifrado
     /// @param encryptedCompliance Cumplimiento cifrado
-    /// @param inputProof Prueba de validez para datos cifrados
+    /// @param priceInputProof Prueba de validez para datos cifrados
+    /// @param complianceInputProof Prueba de validez para datos cifrados
     function submitBid(
         einput encryptedPrice,
         einput encryptedCompliance,
-        bytes calldata inputProof
+        bytes calldata priceInputProof,
+        bytes calldata complianceInputProof
     ) public {
-        euint64 price = TFHE.asEuint64(encryptedPrice, inputProof);
-        ebool compliance = TFHE.asEbool(encryptedCompliance, inputProof);
+        euint64 price = TFHE.asEuint64(encryptedPrice, priceInputProof);
+        ebool compliance = TFHE.asEbool(encryptedCompliance, complianceInputProof);
 
         // Guardar la oferta
         bids[msg.sender] = Bid(price, compliance);
